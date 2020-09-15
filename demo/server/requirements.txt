@@ -1,0 +1,10 @@
+Flask
+matplotlib
+scikit-learn
+geopy
+pgeocode
+numpy
+scipy
+seaborn
+pandas
+geopandas
