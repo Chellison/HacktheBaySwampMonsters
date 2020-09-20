@@ -73,6 +73,8 @@ It requires running both the flask server (`cd demo/server ; python app.py`) and
 
 ## Screenshots
 
-![The demo in its raw state.](https://github.com/Chellison/HacktheBaySwampMonsters/blob/master/screenshots/starting.png)
-![The demo with a zip code.](https://github.com/Chellison/HacktheBaySwampMonsters/blob/master/screenshots/farmland.png)
-![The demo with a scenario.](https://github.com/Chellison/HacktheBaySwampMonsters/blob/master/screenshots/reforesting.png)
+![The demo in its raw state.](screenshots/starting.png)
+![The demo with a zip code.](screenshots/farmland.png)
+![The demo with a scenario.](screenshots/reforesting.png)
+
+![sample locations](screenshots/Copy of aveN_sampLocations_months.jpg)
