@@ -40,7 +40,8 @@ in Figure 3.
 
 ![](screenshots/chesapeake_withDC.PNG)
 
-**Figure 3**: A comparison of hydrological unit code (HUC) sizes. HUC-8 is the largest, followed by HUC-10, with HUC-12 being the finest-grained.
+**Figure 3**: A comparison of hydrological unit code (HUC) sizes. HUC-8 is the largest, followed by HUC-10, with HUC-12 being the 
+finest-grained.
 
 At first, even using the smallest land cover grouping at the HUC 12 level of boundary, we did not find as strong a relationship between 
 land cover and station sampling data as we expected, given the causal relationship between them recorded in peer-reviewed literature. 
@@ -48,35 +49,40 @@ We considered this may be because the water station samples were influenced by u
 
 To address this concern, we additionally extracted land cover in HUCs upstream of each sampling station. This was done by using the 
 National Hydrography Dataset to create an iterative tool to identify which waterways flowed downstream to each sampling station. We 
-used the selected set of streams (see Figure 3) for each sampling station to identify which HUCs the streams crossed through on their 
+used the selected set of streams (example in Figure 4) for each sampling station to identify which HUCs the streams crossed through on their 
 way to the sampling station. We then used these grouped upstream HUCS to examine the land cover type amounts and percentages for the 
 waterways flowing into the sampling stations.
 
 ![](screenshots/streamFlow_wLabel.png)
 
-**Figure 4**: All the streams feeding into a particular station.
+**Figure 4**: All the streams feeding into a particular station with corresponding HUC12 regions.
 
-Data analysis included Pearson correlations (see Figure 4) to decide which major groups should be included in the interface. Various 
+Data analysis included Pearson correlations (see Figure 5) to decide which major groups should be included in the interface. Various 
 machine learning models were tested, from which we selected gradient boosting regression was selected. The R^2 for these models 
-(see Figure 5) showed that when all extractions were considered, the best fit was achieved. However, the two best fit models included 
+(see Figure 6) showed that when all extractions were considered, the best fit was achieved. However, the two best fit models included 
 the upstream tracing land cover extractions. The second best fit was only slightly lower, and achieved using only the upstream tracing 
 that grouped influential HUC 12 watersheds. R^2 for models which explicitly look at comparing the usefulness of different spatial 
 granularities for landcover also support that the upstream HUC data is most useful and that HUC8 to too large an area to be indicative of 
-water quality (see Figure 5). This supported our hypothesis and general literature consensus that upstream land cover was as influential 
-as the land cover immediately surrounding the sampling station. The feature importance graph (see Figure 6) indicates that cultivate 
-crops, open water, and wetlands all play an important role in predicting nitrogen levels.
+water quality (see Figure 7). This supported our hypothesis and general literature consensus that upstream land cover was as influential 
+as the land cover immediately surrounding the sampling station. The feature importance graph for the model which only used the upstream
+landcover features (see Figure 8) indicates that cultivated crops, open water, and wetlands all play an important role in predicting nitrogen levels.
 
 ![](screenshots/correlationStream_corrrect.jpg)
 
 **Figure 5**: The correlation between land use types, and between land use types and nitrogen.
 
+![](screenshots/R2_table.jpg)
+
+**Figure 6**: The R^2 values for different models. We see that adding more geographic region sizes improves performance. More interestingly,
+the second best model is the basci Latitude, Longitude, Month, and Year variables win the upstream land cover information.
+
 ![](screenshots/Copy%20of%20results2.jpg)
 
-**Figure 6**: The R^2 values for the different models. We can see from this that the basic variables (LLAMY) plus land use and upstream land use datasets performed the best.
+**Figure 7**: The R^2 values for the different models. We can see from this that the basic variables (LLAMY) plus land use and upstream land use datasets performed the best.
 
 ![](screenshots/Copy%20of%20varImportance_upstreamHUCs_edited.jpg)
 
-**Figure 7**: Feature importance graph.
+**Figure 8**: Feature importance graph for gradient boosting regression with upstream landcoverage as input features.
 
 ## Challenges we ran into
 
@@ -92,7 +98,7 @@ appropriate models.
 
 ## Data & Modeling
 
-The modeling code lives in the `ModelCode` directory, and the data transformation scripts live in the `eda` directory.
+The data manipulation, figure creation, and modeling code lives in the `ModelCode` directory, and the data transformation scripts live in the `eda` directory.
 
 ## Demo
 
