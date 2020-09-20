@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import urllib.request
 import math
+import os
 
 #models
 from sklearn.linear_model import LinearRegression
@@ -20,86 +21,57 @@ import datetime as dt
 import scipy.stats as stats
 from io import StringIO
 from typing import Tuple
+from features import HUC12_percent, HUC10_percent, HUC8_percent, stream_percent
 
-#read in data
-
-#measurements data (with HUCS)
-file_location = 'data/WateQuality_wHUC_Percents.csv'
-datadf = pd.read_csv(file_location)
-print(datadf)
-
-#stream flow data
-file_location = 'data/TrueLocationsStreamFlow.csv'
-streamFlow = pd.read_csv(file_location)
-print(streamFlow)
-
-#merge on locations
-datadf = pd.merge(datadf, streamFlow, how = 'left', left_on = ['Latitude','Longitude'], right_on = ['Latitude','Longitude'])
-
-datadf
-
-#remove null
-#check for nulls
-print(datadf.isnull().sum())
-
-#remove 196 entries
-datadf = datadf.dropna(subset=['PctVALUE_95'])
-print(datadf.isnull().sum())
-
-#names- HUC12, HUC10, HUC8, stream percents
-HUC12_percent = ['V_11_PERCENT', 'V_21_PERCENT',
-       'V_22_PERCENT', 'V_23_PERCENT', 'V_24_PERCENT', 'V_31_PERCENT',
-       'V_41_PERCENT', 'V_42_PERCENT', 'V_43_PERCENT', 'V_45_PERCENT',
-       'V_46_PERCENT', 'V_52_PERCENT', 'V_71_PERCENT', 'V_81_PERCENT',
-       'V_82_PERCENT', 'V_90_PERCENT', 'V_95_PERCENT']
+import pickle
 
 
-HUC10_percent = ['V_11_PERCENT_10', 'V_21_PERCENT_10', 'V_22_PERCENT_10',
-       'V_23_PERCENT_10', 'V_24_PERCENT_10', 'V_31_PERCENT_10',
-       'V_41_PERCENT_10', 'V_42_PERCENT_10', 'V_43_PERCENT_10',
-       'V_45_PERCENT_10', 'V_46_PERCENT_10', 'V_52_PERCENT_10',
-       'V_71_PERCENT_10', 'V_81_PERCENT_10', 'V_82_PERCENT_10',
-       'V_90_PERCENT_10', 'V_95_PERCENT_10']
+def setup():
+    #measurements data (with HUCS)
+    file_location = 'data/WateQuality_wHUC_Percents.csv'
+    datadf = pd.read_csv(file_location)
 
-HUC8_percent = ['V_11_PERCENT_8','V_21_PERCENT_8', 'V_22_PERCENT_8', 'V_23_PERCENT_8', 'V_24_PERCENT_8',
-       'V_31_PERCENT_8', 'V_41_PERCENT_8', 'V_42_PERCENT_8', 'V_43_PERCENT_8',
-       'V_45_PERCENT_8', 'V_46_PERCENT_8', 'V_52_PERCENT_8', 'V_71_PERCENT_8',
-       'V_81_PERCENT_8', 'V_82_PERCENT_8', 'V_90_PERCENT_8', 'V_95_PERCENT_8',]
+    #stream flow data
+    file_location = 'data/TrueLocationsStreamFlow.csv'
+    streamFlow = pd.read_csv(file_location)
 
-stream_percent =['PctVALUE_11', 'PctVALUE_21', 'PctVALUE_22', 'PctVALUE_23',
-       'PctVALUE_24', 'PctVALUE_31', 'PctVALUE_41', 'PctVALUE_42',
-       'PctVALUE_43', 'PctVALUE_45', 'PctVALUE_46', 'PctVALUE_52',
-       'PctVALUE_71', 'PctVALUE_81', 'PctVALUE_82', 'PctVALUE_90',
-       'PctVALUE_95']
+    #merge on locations
+    datadf = pd.merge(datadf, streamFlow, how = 'left', left_on = ['Latitude','Longitude'], right_on = ['Latitude','Longitude'])
 
-landcover_types = ['open water','developed, open space', 'developed low intensity',
-                  'developed medium intensity', 'developed high intensity', 'barren land', 'deciduous forest',
-                  'evergreen forest', 'mixed forest', 'shrub-Forest', 'herbaceous-Forest', 'shrub or scrub', 'grassland or herbaceous',
-                   'pasture and hay', 'cultivated crops', 'woody wetland',
-                  'emergent herbaceous wetland']
+    #remove 196 entries
+    datadf = datadf.dropna(subset=['PctVALUE_95'])
 
-#select entries with Nitrogen
-datadf = datadf.dropna(subset=['TOTAL NITROGEN'])
+    #select entries with Nitrogen
+    datadf = datadf.dropna(subset=['TOTAL NITROGEN'])
 
-#get month and year
-datadf['year'] = pd.DatetimeIndex(datadf['DateTime']).year
-datadf['month'] = pd.DatetimeIndex(datadf['DateTime']).month
+    #get month and year
+    datadf['year'] = pd.DatetimeIndex(datadf['DateTime']).year
+    datadf['month'] = pd.DatetimeIndex(datadf['DateTime']).month
 
-#set train/test set
-train = datadf[datadf['year']<=2015]
-test = datadf[datadf['year']>2016]
+    #set train/test set
+    train = datadf[datadf['year']<=2015]
+    test = datadf[datadf['year']>2016]
 
-#gradient boosted trees
-depVar = ['Latitude', 'Longitude','month','year']+HUC12_percent+HUC10_percent+HUC8_percent+stream_percent
-X = train[depVar]
-Y = train['TOTAL NITROGEN']
+    return train, test
 
-lr_tn = GradientBoostingRegressor()
-lr_tn.fit(X,Y)
-score_train = lr_tn.score(X, Y)
-print('train', score_train)
-score_test = lr_tn.score(test[depVar], test['TOTAL NITROGEN'])
-print('gradient boost, HUC12,HUC10, and HUC8, stream test',score_test)
+
+def train_model():
+    #gradient boosted trees
+    X = train[depVar]
+    Y = train['TOTAL NITROGEN']
+
+    lr_tn = GradientBoostingRegressor()
+    lr_tn.fit(X,Y)
+    score_train = lr_tn.score(X, Y)
+    print('train', score_train)
+    score_test = lr_tn.score(test[depVar], test['TOTAL NITROGEN'])
+    print('gradient boost, HUC12,HUC10, and HUC8, stream test',score_test)
+
+    with open(pkl_filename, 'wb') as file:
+        pickle.dump(lr_tn, file)
+
+    return lr_tn
+
 
 def counterfactual(station: str,
                    percent_urban: float,
@@ -132,3 +104,14 @@ def counterfactual(station: str,
     projection = lr_tn.predict(filtered_test_projection[depVar])
 
     return list(filtered_test.month), list(filtered_test.year), current, projection, (urban_total, forest_total, farm_total)
+
+pkl_filename = "models/boosted_regression.pkl"
+train, test = setup()
+
+depVar = ['Latitude', 'Longitude','month','year']+HUC12_percent+HUC10_percent+HUC8_percent+stream_percent
+
+if os.path.exists(pkl_filename):
+    with open(pkl_filename, 'rb') as file:
+        lr_tn = pickle.load(file)
+else:
+    lr_tn = train_model()

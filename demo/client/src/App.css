@@ -10,9 +10,9 @@
 .image-holder {
   background: #eee;
   width: 100%;
-  min-height: 500px;
+  min-height: 400px;
   margin-top: 20px;
-  padding: 10px 200px;
+  padding: 10px;
 }
 
 .image-holder img {

@@ -14,17 +14,21 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import FormControl from 'react-bootstrap/FormControl';
 
 import { DropletHalf } from 'react-bootstrap-icons';
+import { Map, TileLayer, Marker, Popup } from 'react-leaflet';
 
 
 class Baywatch extends React.Component {
   state = {
     zipCode: "",
+    submittedZip: "",
     percentFarmland: 33.3,
     percentForest: 33.3,
     percentUrban: 33.3,
     imageUrl: "",
     metric: "",
-    updatedPercentage: false
+    updatedPercentage: false,
+    lat: null,
+    long: null
   }
 
   updatePercentage(aDiff, b, c) {
@@ -99,23 +103,43 @@ class Baywatch extends React.Component {
 
     let url = "http://localhost:5000/plot.png?zip=" + zip + "&metric=" + metric;
 
-    if(this.state.updatedPercentage) {
+    if(this.state.updatedPercentage && this.state.zipCode === this.state.submittedZip) {
       const farm = this.state.percentFarmland;
       const urban = this.state.percentUrban;
       const forest = this.state.percentForest;
 
       url = url + "&farm=" + farm + "&urban=" + urban + "&forest=" + forest;
+    } else {
+      this.fetchPercentages()
     }
 
     this.setState({
-      imageUrl: url
+      imageUrl: url,
+      submittedZip: this.state.zipCode
     })
+  }
+
+  fetchPercentages() {
+    const zip = this.state.zipCode;
+
+    fetch('http://localhost:5000/percentages?zip=' + zip)
+        .then(response => response.json())
+        .then(data => {
+          this.setState({
+            percentFarmland: parseFloat(data.farm),
+            percentUrban: parseFloat(data.urban),
+            percentForest: parseFloat(data.forest),
+            lat: parseFloat(data.lat),
+            long: parseFloat(data.long)
+          })
+          console.log(data);
+        });
   }
 
   render() {
     let image = "";
     if(this.state.imageUrl) {
-      image = (<img src={this.state.imageUrl} />);
+      image = (<img src={this.state.imageUrl} height="400px" />);
     }
 
     return(
@@ -155,7 +179,8 @@ class Baywatch extends React.Component {
               <Form.Control
                 value={this.state.percentFarmland}
                 onChange={(e) => this.setPercent("farmland", e.target.value)}
-                type="range" />
+                type="range"
+                variant="alert" />
             </Form.Group>
             </Col>
             <Col>
@@ -164,7 +189,8 @@ class Baywatch extends React.Component {
               <Form.Control
                 value={this.state.percentForest}
                 onChange={(e) => this.setPercent("forest", e.target.value)}
-                type="range" />
+                type="range"
+                variant="success" />
             </Form.Group>
             </Col>
             <Col>
@@ -173,17 +199,50 @@ class Baywatch extends React.Component {
               <Form.Control
                 value={this.state.percentUrban}
                 onChange={(e) => this.setPercent("urban", e.target.value)}
-                type="range" />
+                type="range"
+                variant="primary" />
             </Form.Group>
             </Col>
           </Form.Row>
 
         </Form>
-        <div className="image-holder">
-          {image}
+        <div className="image-holder container">
+          <Row>
+            <Col>
+              <StationMap lat={this.state.lat} long={this.state.long} />
+            </Col>
+            <Col>
+              {image}
+            </Col>
+          </Row>
         </div>
       </div>
     );
+  }
+}
+
+class StationMap extends React.Component {
+  render() {
+    const latitude = this.props.lat;
+    const longitude = this.props.long;
+
+    if(latitude && longitude) {
+      return (
+        <Map center={[latitude, longitude]}
+          zoom={13}
+          style={{ width: '100%', height: '400px' }}>
+          <TileLayer attribution='&copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+          <Marker position={[latitude, longitude]}>
+            <Popup>
+              A pretty CSS3 popup. <br /> Easily customizable.
+            </Popup>
+          </Marker>
+        </Map>
+      )
+    } else {
+      return ("Please enter a zipcode and water quality metric.")
+    }
   }
 }
 
@@ -191,7 +250,7 @@ class Baywatch extends React.Component {
 function Logo() {
   return(
     <Navbar className="nav">
-      <DropletHalf color="#33b5e5" /><Navbar.Brand href="#home">Baywatch</Navbar.Brand>
+      <DropletHalf color="#33b5e5" /><Navbar.Brand href="/">Baywatch</Navbar.Brand>
       <Navbar.Collapse className="justify-content-end">
         <Navbar.Text>
           <a href="/">About</a>

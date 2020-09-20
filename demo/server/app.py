@@ -1,7 +1,7 @@
 import io
 import random
 
-from flask import Response, Flask, request
+from flask import Response, Flask, request, jsonify
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 import seaborn as sns
@@ -22,6 +22,7 @@ from scipy import interpolate
 from model import counterfactual
 from typing import Tuple
 from geopy.distance import geodesic
+from flask_cors import CORS
 
 import pgeocode
 
@@ -40,16 +41,33 @@ def closest_station(zipcode: str) -> str:
     lat, long = zip_to_latlong(zipcode)
 
     cur_min = 100000
+    cur_pt = ()
     cur_id = ''
     for latitude, longitude, id in zip(locations.Latitude, locations.Longitude, locations.Station):
         dist = geodesic((lat, long), (latitude, longitude)).miles
         if dist < cur_min:
             cur_id = id
             cur_min = dist
+            cur_pt = (latitude, longitude)
 
-    return cur_id
+    return cur_id, cur_pt
 
 app = Flask(__name__)
+CORS(app)
+
+@app.route('/percentages')
+def percentags():
+    zipcode = request.args.get('zip', '')
+    station, (lat, long) = closest_station(zipcode)
+    _, _, _, _, (u_t, fo_t, fa_t) = counterfactual(station, -1, -1, -1)
+
+    return jsonify({
+        'farm': fa_t*100,
+        'urban': u_t*100,
+        'forest': fo_t*100,
+        'lat': lat,
+        'long': long
+    })
 
 @app.route('/plot.png')
 def serve_counterfactual():
@@ -64,6 +82,7 @@ def serve_counterfactual():
     FigureCanvas(fig).print_png(output)
     return Response(output.getvalue(), mimetype='image/png')
 
+
 def create_figure(zipcode, metric, urban, forest, farm):
     fig = Figure()
     fig.suptitle(f'Projected values of {metric} near {zipcode}')
@@ -71,7 +90,7 @@ def create_figure(zipcode, metric, urban, forest, farm):
     axis.set_ylabel(f'{metric}')
     axis.set_xlabel('months')
 
-    station = closest_station(zipcode)
+    station, _ = closest_station(zipcode)
     print(station)
     months, years, current, changed, (u_t, fo_t, fa_t) = counterfactual(station, urban, farm, forest)
     corrected_months = [(year-min(years))*12+month for month, year in zip(months, years)]
