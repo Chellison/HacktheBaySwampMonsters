@@ -35,7 +35,12 @@ created by USGS to provide land cover data at a 30 meter resolution. We used the
 using hydrologic unit codes, called HUCs) as boundaries to distinguish which land cover drained into which waterways. The number 
 of pixels of each land cover type and their percentage within the HUC boundary were compared to the water quality sampling data taken 
 at stations within those boundaries using various statistical correlation tests and then input into a machine learning model (gradient 
-boosting regression). We tested HUC sizes 8, 10, and 12, with 8 being larger regions and 12 being the smallest.
+boosting regression). We tested HUC sizes 8, 10, and 12, with 8 being larger regions and 12 being the smallest. HUC sizes are compared
+in Figure 3.
+
+![](screenshots/chesapeake_withDC.PNG)
+
+Figure 3: A comparison of hydrological unit code (HUC) sizes. HUC-8 is the largest, followed by HUC-10, with HUC-12 being the finest-grained.
 
 At first, even using the smallest land cover grouping at the HUC 12 level of boundary, we did not find as strong a relationship between 
 land cover and station sampling data as we expected, given the causal relationship between them recorded in peer-reviewed literature. 
