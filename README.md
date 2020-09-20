@@ -71,7 +71,7 @@ landcover features (see Figure 8) indicates that cultivated crops, open water, a
 
 **Figure 5**: The correlation between land use types, and between land use types and nitrogen.
 
-![](screenshots/R2_table.jpg)
+![](screenshots/R2_table.png)
 
 **Figure 6**: The R^2 values for different models. We see that adding more geographic region sizes improves performance. More interestingly,
 the second best model is the basci Latitude, Longitude, Month, and Year variables win the upstream land cover information.
