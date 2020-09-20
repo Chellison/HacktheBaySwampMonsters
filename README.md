@@ -24,11 +24,11 @@ We also noticed that more samples, particularly in the bay itself, were taken in
 
 ![](screenshots/Copy%20of%20aveN_sampLocations_months.jpg)
 
-Figure 1: The average nitrogen by station, broken out by month.
+**Figure 1**: The average nitrogen by station, broken out by month.
 
 ![](screenshots/Copy%20of%20month_boxplot.jpg)
 
-Figure 2: A boxplot of the nitrogen levels broken down by month across all locations. The means clearly change seasonally.
+**Figure 2**: A boxplot of the nitrogen levels broken down by month across all locations. The means clearly change seasonally.
 
 First, we extracted land cover within watersheds. We used the public National Land Cover Dataset (NLCD) 2016 Science product 
 created by USGS to provide land cover data at a 30 meter resolution. We used the USGS watershed basin boundaries (which are named 
@@ -40,7 +40,7 @@ in Figure 3.
 
 ![](screenshots/chesapeake_withDC.PNG)
 
-Figure 3: A comparison of hydrological unit code (HUC) sizes. HUC-8 is the largest, followed by HUC-10, with HUC-12 being the finest-grained.
+**Figure 3**: A comparison of hydrological unit code (HUC) sizes. HUC-8 is the largest, followed by HUC-10, with HUC-12 being the finest-grained.
 
 At first, even using the smallest land cover grouping at the HUC 12 level of boundary, we did not find as strong a relationship between 
 land cover and station sampling data as we expected, given the causal relationship between them recorded in peer-reviewed literature. 
@@ -54,7 +54,7 @@ waterways flowing into the sampling stations.
 
 ![](screenshots/streamFlow_wLabel.png)
 
-Figure 3: All the streams feeding into a particular station.
+**Figure 4**: All the streams feeding into a particular station.
 
 Data analysis included Pearson correlations (see Figure 4) to decide which major groups should be included in the interface. Various 
 machine learning models were tested, from which we selected gradient boosting regression was selected. The R^2 for these models 
@@ -68,15 +68,15 @@ crops, open water, and wetlands all play an important role in predicting nitroge
 
 ![](screenshots/correlationStream_corrrect.jpg)
 
-Figure 4: The correlation between land use types, and between land use types and nitrogen.
+**Figure 5**: The correlation between land use types, and between land use types and nitrogen.
 
 ![](screenshots/Copy%20of%20results2.jpg)
 
-Figure 5: The R^2 values for the different models. We can see from this that the basic variables (LLAMY) plus land use and upstream land use datasets performed the best.
+**Figure 6**: The R^2 values for the different models. We can see from this that the basic variables (LLAMY) plus land use and upstream land use datasets performed the best.
 
 ![](screenshots/Copy%20of%20varImportance_upstreamHUCs_edited.jpg)
 
-Figure 6: Feature importance graph.
+**Figure 7**: Feature importance graph.
 
 ## Challenges we ran into
 
