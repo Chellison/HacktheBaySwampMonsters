@@ -98,7 +98,7 @@ appropriate models.
 
 ## Data & Modeling
 
-The data manipulation, figure creation, and modeling code lives in the `ModelCode` directory, and the data transformation scripts live in the `eda` directory.
+The data manipulation, figure creation, and modeling code lives in the `model` directory, and the data transformation scripts live in the `eda` directory.
 
 ## Demo
 
